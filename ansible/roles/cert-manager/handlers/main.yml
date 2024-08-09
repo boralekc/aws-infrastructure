@@ -1,0 +1,4 @@
+  - name: Initialize Helm client
+    command: helm repo update
+    environment:
+      KUBECONFIG: "{{ lookup('env', 'KUBECONFIG') }}"

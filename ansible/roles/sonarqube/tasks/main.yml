@@ -1,0 +1,89 @@
+- name: Create Keycloak namespace
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ app_namespace }}"
+    state: present
+
+- name: Add Helm repository
+  kubernetes.core.helm_repository:
+    kubeconfig: "{{ kubeconfig }}"
+    name: sonarqube
+    repo_url: https://SonarSource.github.io/helm-chart-sonarqube
+    state: present
+  notify: Initialize Helm client
+
+- name: Download PostgreSQL SSL certificate
+  shell: |
+    mkdir -p ~/.postgresql
+    wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" --output-document ~/.postgresql/root.crt
+
+- name: Create PostgreSQL SSL Secret
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: postgres-ssl
+        namespace: "{{ app_namespace }}"
+      type: Opaque
+      data:
+        root.crt: "{{ lookup('file', '~/.postgresql/root.crt') | b64encode }}"
+
+- name: Install sonarqube
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: sonarqube
+    chart_ref: sonarqube/sonarqube
+    state: present
+    release_namespace: "{{ app_namespace }}"
+    create_namespace: true
+    release_state: present
+    values:
+      resources:
+        limits:
+          cpu: 400m
+          memory: 3144M
+          ephemeral-storage: 512000M
+        requests:
+          cpu: 200m
+          memory: 2048M
+          ephemeral-storage: 1536M
+      ingress:
+        enabled: true
+        hosts:
+          - name: "{{ app_host }}"
+        annotations:
+           nginx.ingress.kubernetes.io/proxy-buffer-size: "32k"
+           nginx.ingress.kubernetes.io/affinity: "cookie"
+           nginx.ingress.kubernetes.io/rewrite-target: /
+           nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+           nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+           nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+           nginx.ingress.kubernetes.io/proxy-body-size: "512m"
+           kubernetes.io/ingress.class: "nginx"
+           cert-manager.io/cluster-issuer: sonarissuer
+           nginx.ingress.kubernetes.io/ssl-redirect: "true"
+           nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+           kubernetes.io/tls-acme: "true"
+        ingressClassName: nginx
+        # tls:
+        #   - secretName: sonar-server-tls
+        #     hosts:
+        #       - "{{ app_host }}"
+      account:
+        adminPassword: "{{ user_password }}"
+        currentAdminPassword: "{{ user_password }}"
+      jdbcOverwrite:
+        enabled: true
+        jdbcUrl: "{{ jdbcUrl }}"
+        jdbcUsername: "{{ jdbcUsername }}"
+        jdbcPassword: "{{ jdbcPassword }}"
+      postgresql:
+        enabled: false
+      tests:
+        enabled: false

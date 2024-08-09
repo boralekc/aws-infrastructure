@@ -1,0 +1,17 @@
+- name: Add Helm repository
+  kubernetes.core.helm_repository:
+    kubeconfig: "{{ kubeconfig }}"
+    name: ingress-nginx
+    repo_url: https://kubernetes.github.io/ingress-nginx
+    state: present
+  notify: Initialize Helm client
+
+- name: Deploy ingress-nginx
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: ingress-nginx
+    chart_ref: ingress-nginx/ingress-nginx
+    state: present
+    release_namespace: ingress
+    create_namespace: true
+    release_state: presen

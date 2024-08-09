@@ -1,0 +1,110 @@
+name: Deploy environment
+on:
+  workflow_call:
+    inputs:
+      APP_HOST:
+        required: false
+        type: string
+      APP_NAMESPACE:
+        required: false
+        type: string
+      PLAYBOOK:
+        required: false
+        type: string
+      NAME_CLUSTERISSUER:
+        required: false
+        type: string
+      NAME_CERTIFICATE:
+        required: false
+        type: string
+      USER_EMAIL:
+        required: false
+        type: string
+      ANSIBLE_CONFIG:
+        required: true
+        type: string
+      CHART_PATH:
+        required: false
+        type: string
+      CLUSTERISSUER_NAME:
+        required: false
+        type: string
+        default: 'clusterissuer'
+    secrets:
+      YC_SA_JSON_CREDENTIALS:
+        required: true
+      YC_FOLDER_ID:
+        required: true
+      DB_HOST:
+        required: false
+      DB_NAME:
+        required: false
+      DB_USER:
+        required: false
+      DB_PASSWORD:
+        required: false
+      DB_PORT:
+        required: false
+      USER_NAME:
+        required: false
+      USER_PASSWORD:
+        required: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ${{ github.workspace }}/ansible
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install yc cli and login into yandex cloud
+        uses: okar1/yc-cli-install@master
+        with:
+          SA_KEY: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+          pip install kubernetes
+          pip install passlib
+
+      - name: Install kubernetes.core collection
+        run: |
+          ansible-galaxy collection install kubernetes.core
+          ansible-galaxy collection install community.general
+
+      - name: Kubeconfig request
+        run: |
+          yc managed-kubernetes cluster get-credentials --name k8s --folder-id ${{ secrets.YC_FOLDER_ID }} --external --force
+
+      - name: Run Ansible playbook
+        env:
+          KUBECONFIG: '/home/runner/.kube/config'
+          APP_HOST: ${{ inputs.APP_HOST }}
+          APP_NAMESPACE: ${{ inputs.APP_NAMESPACE }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+          NAME_CLUSTERISSUER: ${{ inputs.NAME_CLUSTERISSUER }}
+          NAME_CERTIFICATE: ${{ inputs.NAME_CERTIFICATE }}
+          USER_EMAIL: ${{ inputs.USER_EMAIL }}
+          ANSIBLE_CONFIG: ${{ inputs.ANSIBLE_CONFIG }}
+          CHART_PATH: ${{ inputs.CHART_PATH }}
+          CLUSTERISSUER_NAME: ${{ inputs.CLUSTERISSUER_NAME }}
+        run: |
+          kubectl cluster-info
+          ansible-playbook ${{ github.workspace }}/ansible/playbooks/${{ inputs.PLAYBOOK }}
+

@@ -1,0 +1,8 @@
+- name: Deploy DefectDojo to Kubernetes
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  become: yes
+  become_user: runner
+  roles:
+    - defectdojo

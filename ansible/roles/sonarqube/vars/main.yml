@@ -1,0 +1,8 @@
+kubeconfig: "{{ lookup('env', 'KUBECONFIG') }}"
+app_namespace: "{{ lookup('env', 'APP_NAMESPACE') }}"
+app_host: "{{ lookup('env', 'APP_HOST') }}"
+user_password: "{{ lookup('env', 'USER_PASSWORD') }}"
+chart_path: "{{ lookup('env', 'CHART_PATH') }}"
+jdbcUrl: "{{ lookup('env', 'DB_HOST') }}"
+jdbcUsername: "{{ lookup('env', 'DB_USER') }}"
+jdbcPassword: "{{ lookup('env', 'DB_PASSWORD') }}"

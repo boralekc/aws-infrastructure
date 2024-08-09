@@ -1,0 +1,15 @@
+- name: Install clusterissuer
+  kubernetes.core.helm:
+    kubeconfig: "{{ kubeconfig }}"
+    name: "{{ clusterissuer }}"
+    chart_ref: "{{ chart_path }}"
+    state: present
+    release_namespace: "{{ app_namespace }}"
+    create_namespace: true
+    release_state: present
+    values:
+      installCRDs: true
+      namespace: "{{ app_namespace }}"
+      clusterissuer:
+        name: "{{ name_clusterissuer }}"
+        host: "{{ app_host }}"
