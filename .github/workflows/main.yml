@@ -20,15 +20,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     
-    - name: IAM Token
-      id: issue-iam-token
-      uses: yc-actions/yc-iam-token@v1
+    - name: Configure AWS Credentials using OIDC
+      uses: aws-actions/configure-aws-credentials@v2
       with:
-        yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
-    - name: Set environment variables from secrets
-      run: |
-        echo "YC_TOKEN=${{ steps.issue-iam-token.outputs.token }}" >> $GITHUB_ENV
+        role-to-assume: arn:aws:iam::975050337330:role/terraform
+        aws-region: us-west-2
     
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
@@ -41,7 +37,7 @@ jobs:
       continue-on-error: true    
 
     - name: Initialize Terraform
-      run: terraform init -input=false -backend-config="access_key=${{ secrets.ACCESS_KEY }}" -backend-config="secret_key=${{ secrets.SECRET_KEY }}"
+      run: terraform init -input=false
 
     - name: Plan Terraform changes
       run: terraform plan -input=false -var="DB_USER=${{ secrets.DB_USER }}" -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" -var="CLOUD_ID=${{ secrets.YC_CLOUD_ID }}" -var="FOLDER_ID=${{ secrets.YC_FOLDER_ID }}" -var="YC_TOKEN=${{ env.YC_TOKEN }}" -var="ACCESS_KEY=${{ secrets.ACCESS_KEY }}" -var="SECRET_KEY=${{ secrets.SECRET_KEY }}"
