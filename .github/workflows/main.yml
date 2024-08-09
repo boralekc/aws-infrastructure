@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@v2
     
     - name: Configure AWS Credentials using OIDC
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: arn:aws:iam::975050337330:role/terraform
         aws-region: us-west-2
