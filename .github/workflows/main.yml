@@ -5,6 +5,10 @@ on:
     tags:
       - 'main-pipeline*'
 
+permissions:
+  id-token: write  # Это разрешение необходимо для запроса JWT
+  contents: read   # Это разрешение требуется для использования actions/checkout
+
 jobs:
   terraform:
     name: "Terraform"
