@@ -9,7 +9,7 @@ terraform {
   backend "s3" {
     bucket         = "courseway"  # Замените на имя вашего бакета S3
     key            = "terraform-state/terraform.tfstate"  # Путь к файлу состояния внутри бакета
-    region         = "us-west-2"  # Замените на регион, в котором находится ваш бакет
+    region         = "eu-north-1"  # Замените на регион, в котором находится ваш бакет
     encrypt        = true  # Включает шифрование данных в бакете S3
     dynamodb_table = "terraform-lock"  # Таблица DynamoDB для блокировки состояния (опционально)
   }

@@ -29,7 +29,7 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::975050337330:role/terraform
         role-session-name: samplerolesession
-        aws-region: us-west-2
+        aws-region: eu-north-1
     
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
