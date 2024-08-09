@@ -45,159 +45,159 @@ jobs:
     - name: Apply Terraform changes
       run: terraform apply --auto-approve -var="DB_USER=${{ secrets.DB_USER }}" -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" -var="CLOUD_ID=${{ secrets.YC_CLOUD_ID }}" -var="FOLDER_ID=${{ secrets.YC_FOLDER_ID }}" -var="YC_TOKEN=${{ env.YC_TOKEN }}" -var="ACCESS_KEY=${{ secrets.ACCESS_KEY }}" -var="SECRET_KEY=${{ secrets.SECRET_KEY }}"
 
-  ingress-nginx:
-    name: "Deploy ingress-nginx"
-    needs: terraform
-    uses: ./.github/workflows/action.yml
-    with:
-        PLAYBOOK: "ingress-nginx.yml"
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  # ingress-nginx:
+  #   name: "Deploy ingress-nginx"
+  #   needs: terraform
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       PLAYBOOK: "ingress-nginx.yml"
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 
-  cert-manager:
-    name: "Deploy cert-manager"
-    needs: terraform
-    uses: ./.github/workflows/action.yml
-    with:
-        PLAYBOOK: "cert-manager.yml"
-        APP_HOST: ${{ vars.KEYCLOAK_HOST }}
-        APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  # cert-manager:
+  #   name: "Deploy cert-manager"
+  #   needs: terraform
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       PLAYBOOK: "cert-manager.yml"
+  #       APP_HOST: ${{ vars.KEYCLOAK_HOST }}
+  #       APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 
-  clusterissuer-keycloak:
-    name: "Deploy clusterissuer-keycloak"
-    needs: cert-manager
-    uses: ./.github/workflows/action.yml
-    with:
-        PLAYBOOK: "clusterissuer.yml"
-        APP_HOST: ${{ vars.KEYCLOAK_HOST }}
-        APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
-        NAME_CLUSTERISSUER: "letskeycloak"
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-        CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
-        CLUSTERISSUER_NAME: ${{ vars.KEYCLOAK_ISSUER_NAME }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  # clusterissuer-keycloak:
+  #   name: "Deploy clusterissuer-keycloak"
+  #   needs: cert-manager
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       PLAYBOOK: "clusterissuer.yml"
+  #       APP_HOST: ${{ vars.KEYCLOAK_HOST }}
+  #       APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
+  #       NAME_CLUSTERISSUER: "letskeycloak"
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #       CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
+  #       CLUSTERISSUER_NAME: ${{ vars.KEYCLOAK_ISSUER_NAME }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 
-  clusterissuer-keycloak-admin:
-      name: "Deploy clusterissuer-keycloak-admin"
-      needs: cert-manager
-      uses: ./.github/workflows/action.yml
-      with:
-          PLAYBOOK: "clusterissuer.yml"
-          APP_HOST: ${{ vars.KEYCLOAK_HOST }}
-          APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
-          NAME_CLUSTERISSUER: "letskeycloakadmin"
-          ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-          CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
-          CLUSTERISSUER_NAME: ${{ vars.KEYCLOAK_ISSUER_ADMIN_NAME }}
-      secrets:
-          YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  # clusterissuer-keycloak-admin:
+  #     name: "Deploy clusterissuer-keycloak-admin"
+  #     needs: cert-manager
+  #     uses: ./.github/workflows/action.yml
+  #     with:
+  #         PLAYBOOK: "clusterissuer.yml"
+  #         APP_HOST: ${{ vars.KEYCLOAK_HOST }}
+  #         APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
+  #         NAME_CLUSTERISSUER: "letskeycloakadmin"
+  #         ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #         CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
+  #         CLUSTERISSUER_NAME: ${{ vars.KEYCLOAK_ISSUER_ADMIN_NAME }}
+  #     secrets:
+  #         YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #         YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 
-  clusterissuer-argocd:
-    name: "Deploy clusterissuer-argocd"
-    needs: cert-manager
-    uses: ./.github/workflows/action.yml
-    with:
-        PLAYBOOK: "clusterissuer.yml"
-        APP_HOST: ${{ vars.ARGOCD_HOST }}
-        APP_NAMESPACE: ${{ vars.ARGOCD_NAMESPACE }}
-        NAME_CLUSTERISSUER: "argoissuer"
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-        CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  # clusterissuer-argocd:
+  #   name: "Deploy clusterissuer-argocd"
+  #   needs: cert-manager
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       PLAYBOOK: "clusterissuer.yml"
+  #       APP_HOST: ${{ vars.ARGOCD_HOST }}
+  #       APP_NAMESPACE: ${{ vars.ARGOCD_NAMESPACE }}
+  #       NAME_CLUSTERISSUER: "argoissuer"
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #       CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
   
-  clusterissuer-defectdojo:
-    name: "Deploy clusterissuer-defectdojo"
-    needs: cert-manager
-    uses: ./.github/workflows/action.yml
-    with:
-        PLAYBOOK: "clusterissuer.yml"
-        APP_HOST: ${{ vars.DEFECTDOJO_HOST }}
-        APP_NAMESPACE: ${{ vars.DEFECTDOJO_NAMESPACE }}
-        NAME_CLUSTERISSUER: "dojoissuer"
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-        CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  # clusterissuer-defectdojo:
+  #   name: "Deploy clusterissuer-defectdojo"
+  #   needs: cert-manager
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       PLAYBOOK: "clusterissuer.yml"
+  #       APP_HOST: ${{ vars.DEFECTDOJO_HOST }}
+  #       APP_NAMESPACE: ${{ vars.DEFECTDOJO_NAMESPACE }}
+  #       NAME_CLUSTERISSUER: "dojoissuer"
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #       CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 
-  clusterissuer-sonarqube:
-    name: "Deploy clusterissuer-sonarqube"
-    needs: cert-manager
-    uses: ./.github/workflows/action.yml
-    with:
-        PLAYBOOK: "sonarqube.yml"
-        APP_HOST: ${{ vars.SONARQUBE_HOST }}
-        APP_NAMESPACE: ${{ vars.SONARQUBE_NAMESPACE }}
-        NAME_CLUSTERISSUER: "sonarissuer"
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-        CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  # clusterissuer-sonarqube:
+  #   name: "Deploy clusterissuer-sonarqube"
+  #   needs: cert-manager
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       PLAYBOOK: "sonarqube.yml"
+  #       APP_HOST: ${{ vars.SONARQUBE_HOST }}
+  #       APP_NAMESPACE: ${{ vars.SONARQUBE_NAMESPACE }}
+  #       NAME_CLUSTERISSUER: "sonarissuer"
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #       CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 
-  keycloak:
-    name: "Deploy keycloak"
-    needs: 
-      - clusterissuer-keycloak
-      - clusterissuer-keycloak-admin
-    uses: ./.github/workflows/action.yml
-    with:
-        APP_HOST: ${{ vars.KEYCLOAK_HOST }}
-        APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
-        PLAYBOOK: "keycloak.yml"
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_NAME: ${{ secrets.DB_NAME_KEYCLOAK }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_PORT: ${{ secrets.DB_PORT }}
-        USER_NAME: ${{ secrets.KEYCLOAK_ADMIN }}
-        USER_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+  # keycloak:
+  #   name: "Deploy keycloak"
+  #   needs: 
+  #     - clusterissuer-keycloak
+  #     - clusterissuer-keycloak-admin
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       APP_HOST: ${{ vars.KEYCLOAK_HOST }}
+  #       APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
+  #       PLAYBOOK: "keycloak.yml"
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  #       DB_HOST: ${{ secrets.DB_HOST }}
+  #       DB_NAME: ${{ secrets.DB_NAME_KEYCLOAK }}
+  #       DB_USER: ${{ secrets.DB_USER }}
+  #       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  #       DB_PORT: ${{ secrets.DB_PORT }}
+  #       USER_NAME: ${{ secrets.KEYCLOAK_ADMIN }}
+  #       USER_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
 
-  argocd:
-    name: "Deploy argocd"
-    needs: clusterissuer-argocd
-    uses: ./.github/workflows/action.yml
-    with:
-        APP_HOST: ${{ vars.ARGOCD_HOST }}
-        APP_NAMESPACE: ${{ vars.ARGOCD_NAMESPACE }}
-        PLAYBOOK: "argocd.yml"
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-        USER_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
+  # argocd:
+  #   name: "Deploy argocd"
+  #   needs: clusterissuer-argocd
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       APP_HOST: ${{ vars.ARGOCD_HOST }}
+  #       APP_NAMESPACE: ${{ vars.ARGOCD_NAMESPACE }}
+  #       PLAYBOOK: "argocd.yml"
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  #       USER_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
 
-  defectdojo:
-    name: "Deploy defectdojo"
-    needs: clusterissuer-defectdojo
-    uses: ./.github/workflows/action.yml
-    with:
-        APP_HOST: ${{ vars.DEFECTDOJO_HOST }}
-        APP_NAMESPACE: ${{ vars.DEFECTDOJO_NAMESPACE }}
-        USER_EMAIL: ${{ vars.USER_EMAIL }}
-        PLAYBOOK: "defectdojo.yml"
-        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-        CHART_PATH: ${{ vars.DEFECTDOJO_CHART_PATH }}
-    secrets:
-        YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-        YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-        USER_NAME: ${{ secrets.DEFECTDOJO_ADMIN }}
-        USER_PASSWORD: ${{ secrets.DEFECTDOJO_PASSWORD }}
+  # defectdojo:
+  #   name: "Deploy defectdojo"
+  #   needs: clusterissuer-defectdojo
+  #   uses: ./.github/workflows/action.yml
+  #   with:
+  #       APP_HOST: ${{ vars.DEFECTDOJO_HOST }}
+  #       APP_NAMESPACE: ${{ vars.DEFECTDOJO_NAMESPACE }}
+  #       USER_EMAIL: ${{ vars.USER_EMAIL }}
+  #       PLAYBOOK: "defectdojo.yml"
+  #       ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  #       CHART_PATH: ${{ vars.DEFECTDOJO_CHART_PATH }}
+  #   secrets:
+  #       YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+  #       YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  #       USER_NAME: ${{ secrets.DEFECTDOJO_ADMIN }}
+  #       USER_PASSWORD: ${{ secrets.DEFECTDOJO_PASSWORD }}
 
   # sonarqube:
   #   name: "Deploy sonarqube"
