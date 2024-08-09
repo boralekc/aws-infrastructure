@@ -24,8 +24,8 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: arn:aws:iam::975050337330:role/terraform
+        role-session-name: samplerolesession
         aws-region: us-west-2
-        audience: sts.amazonaws.com
     
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
