@@ -11,7 +11,6 @@ terraform {
     key            = "terraform-state/terraform.tfstate"  # Путь к файлу состояния внутри бакета
     region         = "eu-north-1" # Замените на регион, в котором находится ваш бакет
     encrypt        = true  # Включает шифрование данных в бакете S3
-    dynamodb_table = "terraform-lock"  # Таблица DynamoDB для блокировки состояния (опционально)
   }
 }
 
