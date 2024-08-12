@@ -1,59 +1,34 @@
-variable "folder_id" {
-  description = "Folder ID where resources will be created"
+variable "region" {
+  description = "AWS region to deploy resources in."
   type        = string
 }
 
 variable "cluster_name" {
-  description = "Name for IAM account"
+  description = "Name of the EKS cluster."
   type        = string
 }
 
-variable "cluster_group_name" {
-  description = "Name cluster group"
-  type        = string
-}
-
-variable "kubernetes_verison" {
-  description = "Kubernetes version"
-  type        = number
-}
-
-variable "platform_id" {
-  description = "CPU and RAM variant"
+variable "kubernetes_version" {
+  description = "Version of Kubernetes to use."
   type        = string
 }
 
 variable "cluster_zone" {
-  description = "Cluster zone"
+  description = "Availability zone for subnet."
   type        = string
 }
 
-variable "account_name" {
-  description = "Account name"
-  type        = string
-}
-
-variable "count_worker_node" {
-  description = "Count worder nods"
+variable "node_desired_size" {
+  description = "Desired number of worker nodes."
   type        = number
 }
 
-variable "node_ram" {
-  description = "Node ram"
+variable "node_max_size" {
+  description = "Maximum number of worker nodes."
   type        = number
 }
 
-variable "node_cores" {
-  description = "Node cores"
-  type        = number
-}
-
-variable "disk_type" {
-  description = "Disk type"
-  type        = string
-}
-
-variable "disk_size" {
-  description = "Disk size"
+variable "node_min_size" {
+  description = "Minimum number of worker nodes."
   type        = number
 }

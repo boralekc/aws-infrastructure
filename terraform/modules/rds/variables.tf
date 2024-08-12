@@ -1,85 +1,60 @@
-variable "folder_id" {
-  description = "Folder ID where resources will be created"
-  type        = string
-}
-
-variable "account_name" {
-  description = "Name for IAM account"
+variable "region" {
+  description = "AWS region to deploy resources in."
   type        = string
 }
 
 variable "network_name" {
-  description = "Name for network"
+  description = "Name of the network."
   type        = string
 }
 
-variable "cluster_name" {
-  description = "Name for postgres cluster"
-  type        = string
-}
-
-variable "zone" {
-  description = "Name for zone"
-  type        = string
-}
-
-variable "host_zone" {
-  description = "Name for host zone"
-  type        = string
-}
-
-variable "environment" {
-  description = "Name for environment"
+variable "availability_zone" {
+  description = "Availability zone for subnet."
   type        = string
 }
 
 variable "postgres_version" {
-  description = "Version postgres"
-  type        = number
+  description = "PostgreSQL engine version."
+  type        = string
+}
+
+variable "instance_class" {
+  description = "Instance class for the RDS instance."
+  type        = string
 }
 
 variable "disk_size" {
-  description = "Disk size"
+  description = "Size of the storage in GB."
   type        = number
 }
 
-variable "disk_type_id" {
-  description = "Type for disk"
-  type        = string
-}
-
-variable "resource_preset_id" {
-  description = "CPU and RAM config type"
-  type        = string
-}
-
 variable "db_user" {
-  description = "Postgres user"
+  description = "Database user name."
   type        = string
 }
 
 variable "db_password" {
-  description = "Postgres user password"
+  description = "Database user password."
   type        = string
+  sensitive   = true
 }
 
 variable "db_dev" {
-  description = "Database dev name"
+  description = "Name of the development database."
   type        = string
 }
 
 variable "db_prod" {
-  description = "Database prod name"
+  description = "Name of the production database."
   type        = string
 }
 
 variable "db_keycloak" {
-  description = "Database keycloak name"
+  description = "Name of the Keycloak database."
   type        = string
 }
 
 variable "db_sonarqube" {
-  description = "Database sonarqube name"
+  description = "Name of the SonarQube database."
   type        = string
 }
-
