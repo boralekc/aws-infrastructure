@@ -1,27 +1,36 @@
-variable "DB_USER" {
+variable "AWS_REGION" {
   description = "Database username"
 }
 
-variable "DB_PASSWORD" {
-  description = "Database password"
+variable "region" {
+  description = "The AWS region where the S3 bucket will be created"
+  type        = string
 }
 
-variable "CLOUD_ID" {
-  description = "Cloud id"
-}
+# variable "DB_USER" {
+#   description = "Database username"
+# }
 
-variable "FOLDER_ID" {
-  description = "Folder id"
-}
+# variable "DB_PASSWORD" {
+#   description = "Database password"
+# }
 
-variable "YC_TOKEN" {
-  description = "Secret key"
-}
+# variable "CLOUD_ID" {
+#   description = "Cloud id"
+# }
 
-variable "ACCESS_KEY" {
-  type = string
-}
+# variable "FOLDER_ID" {
+#   description = "Folder id"
+# }
 
-variable "SECRET_KEY" {
-  type = string
-}
+# variable "YC_TOKEN" {
+#   description = "Secret key"
+# }
+
+# variable "ACCESS_KEY" {
+#   type = string
+# }
+
+# variable "SECRET_KEY" {
+#   type = string
+# }

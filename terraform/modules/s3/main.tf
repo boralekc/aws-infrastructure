@@ -1,37 +1,25 @@
-terraform {
-  required_providers {
-    yandex = {
-      source = "yandex-cloud/yandex"
-      version = "0.120.0"
+provider "aws" {
+  region = var.region
+}
+
+resource "aws_s3_bucket" "s3" {
+  bucket = var.bucket_name
+  acl    = "public-read"
+
+  versioning {
+    enabled = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
     }
   }
-}
 
-// Создание сервисного аккаунта
-resource "yandex_iam_service_account" "bucket" {
-  folder_id = var.folder_id
-  name      = var.bucket_name
-}
-
-resource "yandex_resourcemanager_folder_iam_binding" "admin" {
-  # Сервисному аккаунту назначается роль "editor".
-  folder_id = var.folder_id
-  role      = "storage.admin"
-  members = [
-    "serviceAccount:${yandex_iam_service_account.bucket.id}"
-  ]
-}
-
-// Create Static Access Keys
-resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
-  service_account_id = yandex_iam_service_account.bucket.id
-  description        = "static access key for object storage"
-}
-
-// Use keys to create bucket
-resource "yandex_storage_bucket" "s3" {
-  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
-  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
-  bucket = var.bucket_name
-  acl = "public-read"
+  tags = {
+    Name        = var.bucket_name
+    Environment = var.environment
+  }
 }

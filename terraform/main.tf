@@ -9,18 +9,15 @@ terraform {
   backend "s3" {
     bucket         = "courseway"  # Замените на имя вашего бакета S3
     key            = "terraform-state/terraform.tfstate"  # Путь к файлу состояния внутри бакета
-    region         = "eu-north-1"  # Замените на регион, в котором находится ваш бакет
+    region         = var.AWS_REGION  # Замените на регион, в котором находится ваш бакет
     encrypt        = true  # Включает шифрование данных в бакете S3
     dynamodb_table = "terraform-lock"  # Таблица DynamoDB для блокировки состояния (опционально)
   }
 }
 
-# provider "yandex" {
-#   cloud_id                 = var.CLOUD_ID
-#   folder_id                = var.FOLDER_ID
-#   zone                     = "ru-central1-a"
-#   service_account_key_file = var.YC_TOKEN != "" ? "" : "D:\\Dev\\yandex-key\\authorized_key.json"
-# }
+provider "aws" {
+  region = var.AWS_REGION
+}
 
 # module "postgres" {
 #   source             = "./modules/postgres"
@@ -43,11 +40,11 @@ terraform {
 #   db_sonarqube       = "sonarDB"
 # }
 
-# module "s3" {
-#   source      = "./modules/s3"
-#   bucket_name = "courseway-bucket"
-#   folder_id   = var.FOLDER_ID
-# }
+module "s3" {
+  source      = "./modules/s3"
+  bucket_name = "courseway-bucket"
+  region      = var.AWS_REGION
+}
 
 # module "registry" {
 #   source        = "./modules/registry"

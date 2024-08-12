@@ -1,9 +1,15 @@
 variable "bucket_name" {
-  description = "Folder ID where resources will be created"
-  type        = string  
+  description = "The name of the S3 bucket"
+  type        = string
 }
 
-variable "folder_id" {
-  description = "Folder ID where resources will be created"
+variable "environment" {
+  description = "Environment (e.g., dev, prod)"
+  type        = string
+  default     = "dev"
+}
+
+variable "region" {
+  description = "The AWS region where the S3 bucket will be created"
   type        = string
 }

@@ -29,7 +29,7 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::975050337330:role/terraform
         role-session-name: samplerolesession
-        aws-region: eu-north-1
+        aws-region: ${{ vars.AWS_REGION }}
     
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
@@ -45,10 +45,10 @@ jobs:
       run: terraform init -input=false
 
     - name: Plan Terraform changes
-      run: terraform plan -input=false -var="DB_USER=${{ secrets.DB_USER }}" -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" -var="CLOUD_ID=${{ secrets.YC_CLOUD_ID }}" -var="FOLDER_ID=${{ secrets.YC_FOLDER_ID }}" -var="YC_TOKEN=${{ env.YC_TOKEN }}" -var="ACCESS_KEY=${{ secrets.ACCESS_KEY }}" -var="SECRET_KEY=${{ secrets.SECRET_KEY }}"
+      run: terraform plan -input=false -var="AWS_REGION=${{ vars.AWS_REGION }}"
 
     - name: Apply Terraform changes
-      run: terraform apply --auto-approve -var="DB_USER=${{ secrets.DB_USER }}" -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}" -var="CLOUD_ID=${{ secrets.YC_CLOUD_ID }}" -var="FOLDER_ID=${{ secrets.YC_FOLDER_ID }}" -var="YC_TOKEN=${{ env.YC_TOKEN }}" -var="ACCESS_KEY=${{ secrets.ACCESS_KEY }}" -var="SECRET_KEY=${{ secrets.SECRET_KEY }}"
+      run: terraform apply --auto-approve -var="AWS_REGION=${{ vars.AWS_REGION }}"
 
   # ingress-nginx:
   #   name: "Deploy ingress-nginx"
