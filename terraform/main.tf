@@ -18,8 +18,8 @@ provider "aws" {
   region = var.AWS_REGION
 }
 
-# module "postgres" {
-#   source             = "./modules/postgres"
+# module "rds" {
+#   source             = "./modules/rds"
 #   folder_id          = var.FOLDER_ID
 #   account_name       = "postgres"
 #   network_name       = "postgres"
@@ -45,12 +45,11 @@ module "s3" {
   region      = var.AWS_REGION
 }
 
-# module "registry" {
-#   source        = "./modules/registry"
-#   folder_id     = var.FOLDER_ID
-#   registry_name = "courseway"
-#   account_name  = "registry"
-# }
+module "registry" {
+  source        = "./modules/registry"
+  registry_name = "courseway"
+  account_name  = "registry"
+}
 
 # module "kubernetes" {
 #   source             = "./modules/kubernetes"
