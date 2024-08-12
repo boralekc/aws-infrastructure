@@ -2,10 +2,6 @@ variable "AWS_REGION" {
   description = "Database username"
 }
 
-variable "region" {
-  description = "The AWS region where the S3 bucket will be created"
-  type        = string
-}
 
 # variable "DB_USER" {
 #   description = "Database username"
