@@ -3,7 +3,7 @@ name: Infrastructure workflow
 on:
   push:
     tags:
-      - 'main-pipeline*'
+      - 'terraform-pipeline*'
 
 permissions:
   id-token: write  # Это разрешение необходимо для запроса JWT

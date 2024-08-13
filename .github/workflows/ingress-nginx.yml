@@ -1,0 +1,15 @@
+name: Ingress-nginx workflow
+
+on:
+  push:
+    tags:
+      - 'ingress-pipeline*'
+
+jobs:    
+  ingress-nginx:
+    name: "Deploy ingress-nginx"
+    uses: ./.github/workflows/action.yml
+    with:
+        PLAYBOOK: "ingress-nginx.yml"
+        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+        AWS_REGION: ${{ vars.AWS_REGION }}

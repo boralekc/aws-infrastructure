@@ -1,7 +1,11 @@
 name: Deploy environment
+
 on:
   workflow_call:
     inputs:
+      AWS_REGION:
+        required: true
+        type: string
       APP_HOST:
         required: false
         type: string
@@ -31,10 +35,6 @@ on:
         type: string
         default: 'clusterissuer'
     secrets:
-      YC_SA_JSON_CREDENTIALS:
-        required: true
-      YC_FOLDER_ID:
-        required: true
       DB_HOST:
         required: false
       DB_NAME:
@@ -60,11 +60,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install yc cli and login into yandex cloud
-        uses: okar1/yc-cli-install@master
-        with:
-          SA_KEY: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -82,9 +77,23 @@ jobs:
           ansible-galaxy collection install kubernetes.core
           ansible-galaxy collection install community.general
 
-      - name: Kubeconfig request
+      - name: Install AWS CLI
         run: |
-          yc managed-kubernetes cluster get-credentials --name k8s --folder-id ${{ secrets.YC_FOLDER_ID }} --external --force
+          curl "https://d1uj6qtbmh3dt5.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          aws --version
+
+      - name: Configure AWS Credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::975050337330:role/terraform
+          role-session-name: samplerolesession
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Kubeconfig setup
+        run: |
+          aws eks update-kubeconfig --name your-cluster-name --region ${{ secrets.AWS_REGION }}
 
       - name: Run Ansible playbook
         env:
@@ -107,4 +116,3 @@ jobs:
         run: |
           kubectl cluster-info
           ansible-playbook ${{ github.workspace }}/ansible/playbooks/${{ inputs.PLAYBOOK }}
-
