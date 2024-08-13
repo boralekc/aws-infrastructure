@@ -96,6 +96,8 @@ resource "aws_eks_node_group" "k8s_node_group" {
     min_size     = var.node_min_size
   }
 
+  instance_types = ["t3.medium"] # Укажите тип инстанса EC2 для узлов
+
   tags = {
     Name = "k8s-node-group"
   }

@@ -2,14 +2,13 @@ variable "AWS_REGION" {
   description = "Database username"
 }
 
+variable "DB_USER" {
+  description = "Database username"
+}
 
-# variable "DB_USER" {
-#   description = "Database username"
-# }
-
-# variable "DB_PASSWORD" {
-#   description = "Database password"
-# }
+variable "DB_PASSWORD" {
+  description = "Database password"
+}
 
 # variable "CLOUD_ID" {
 #   description = "Cloud id"

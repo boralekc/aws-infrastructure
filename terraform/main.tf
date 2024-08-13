@@ -18,31 +18,27 @@ provider "aws" {
   region = var.AWS_REGION
 }
 
-# module "rds" {
-#   source             = "./modules/rds"
-#   folder_id          = var.FOLDER_ID
-#   account_name       = "postgres"
-#   network_name       = "postgres"
-#   cluster_name       = "postgres"
-#   zone               = "ru-central1-a"
-#   environment        = "PRODUCTION"
-#   postgres_version   = 15
-#   disk_size          = "10"
-#   disk_type_id       = "network-ssd"
-#   resource_preset_id = "b2.medium"
-#   host_zone          = "ru-central1-a"
-#   db_user            = var.DB_USER
-#   db_password        = var.DB_PASSWORD
-#   db_dev             = "sw-site-db-dev"
-#   db_prod            = "sw-site-db-prod"
-#   db_keycloak        = "db-keycloak"
-#   db_sonarqube       = "sonarDB"
-# }
+module "rds" {
+  source             = "./modules/rds"
+  network_name       = "postgres"
+  cluster_name       = "postgres"
+  availability_zone  =  var.AWS_REGION
+  postgres_version   =  15
+  disk_size          = "10"
+  instance_class     = "db.t3.medium"
+  db_user            = var.DB_USER
+  db_password        = var.DB_PASSWORD
+  db_dev             = "sw-site-db-dev"
+  db_prod            = "sw-site-db-prod"
+  db_keycloak        = "db-keycloak"
+  db_sonarqube       = "sonarDB"
+}
 
 module "s3" {
   source      = "./modules/s3"
   bucket_name = "courseway-bucket"
   region      = var.AWS_REGION
+  account_name = "s3"
 }
 
 module "registry" {
@@ -51,18 +47,13 @@ module "registry" {
   account_name  = "registry"
 }
 
-# module "kubernetes" {
-#   source             = "./modules/kubernetes"
-#   folder_id          = var.FOLDER_ID
-#   cluster_name       = "k8s"
-#   cluster_group_name = "k8s-node-group"
-#   kubernetes_verison = "1.29"
-#   platform_id        = "standard-v2"
-#   cluster_zone       = "ru-central1-a"
-#   account_name       = "k8s-sa"
-#   count_worker_node  = "1"
-#   node_ram           = 4
-#   node_cores         = 4
-#   disk_type          = "network-ssd"
-#   disk_size           = 64
-# }
+module "kubernetes" {
+  source             = "./modules/kubernetes"
+  node_desired_size  = 1
+  node_max_size      = 1
+  node_min_size      = 1
+  region      = var.AWS_REGION
+  kubernetes_version = "1.29"
+  cluster_name       = "k8s"
+  cluster_zone       = "eu-north-1"
+}

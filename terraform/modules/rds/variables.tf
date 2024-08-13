@@ -1,5 +1,10 @@
-variable "region" {
+variable "availability_zone" {
   description = "AWS region to deploy resources in."
+  type        = string
+}
+
+variable "cluster_name" {
+  description = "Name of the network."
   type        = string
 }
 
