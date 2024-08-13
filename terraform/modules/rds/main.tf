@@ -12,7 +12,7 @@ resource "aws_vpc" "postgres" {
 resource "aws_subnet" "postgres" {
   vpc_id     = aws_vpc.postgres.id
   cidr_block = "10.0.1.0/24"
-  availability_zone = var.availability_zone
+  availability_zone = "${var.availability_zone}a"
   tags = {
     Name = "${var.network_name}-subnet"
   }

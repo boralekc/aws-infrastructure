@@ -12,7 +12,7 @@ resource "aws_vpc" "k8s_network" {
 resource "aws_subnet" "k8s_subnet_a" {
   vpc_id            = aws_vpc.k8s_network.id
   cidr_block        = "10.200.0.0/24"
-  availability_zone = "${var.cluster_zone}-a"
+  availability_zone = "${var.cluster_zone}a"
   map_public_ip_on_launch = true
   tags = {
     Name = "k8s-subnet-a"
@@ -23,7 +23,7 @@ resource "aws_subnet" "k8s_subnet_a" {
 resource "aws_subnet" "k8s_subnet_b" {
   vpc_id            = aws_vpc.k8s_network.id
   cidr_block        = "10.200.0.0/24"
-  availability_zone = "${var.cluster_zone}-b"
+  availability_zone = "${var.cluster_zone}b"
   map_public_ip_on_launch = true
   tags = {
     Name = "k8s-subnet-b"
