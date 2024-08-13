@@ -1,11 +1,11 @@
-# name: Ingress-nginx workflow
+name: Ingress-nginx workflow
 
-# on:
-#   push:
-#     tags:
-#       - 'app-pipeline*'
+on:
+  push:
+    tags:
+      - 'app-pipeline*'
 
-# jobs:    
+jobs:    
 #   cert-manager:
 #     name: "Deploy cert-manager"
 #     needs: terraform
@@ -15,9 +15,6 @@
 #         APP_HOST: ${{ vars.KEYCLOAK_HOST }}
 #         APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
 #         ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-#     secrets:
-#         YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-#         YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 
 #   clusterissuer-keycloak:
 #     name: "Deploy clusterissuer-keycloak"
