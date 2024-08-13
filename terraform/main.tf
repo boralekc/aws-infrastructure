@@ -22,7 +22,7 @@ module "rds" {
   source             = "./modules/rds"
   network_name       = "postgres"
   cluster_name       = "postgres"
-  availability_zone  =  var.AWS_REGION
+  availability_zone  =  "eu-north-1a"
   postgres_version   =  15
   disk_size          = "10"
   instance_class     = "db.t3.medium"
@@ -55,5 +55,5 @@ module "kubernetes" {
   region      = var.AWS_REGION
   kubernetes_version = "1.29"
   cluster_name       = "k8s"
-  cluster_zone       = "eu-north-1"
+  cluster_zone       = "eu-north-1a"
 }
