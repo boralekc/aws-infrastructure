@@ -127,7 +127,7 @@ resource "aws_eks_node_group" "k8s_node_group" {
 
 # Создание роли IAM для узлов EKS
 resource "aws_iam_role" "node_role" {
-  name = "eks-node-role"
+  name = "eks-cluster-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -136,14 +136,18 @@ resource "aws_iam_role" "node_role" {
         Action    = "sts:AssumeRole"
         Effect    = "Allow"
         Principal = {
-          Service = "ec2.amazonaws.com"
+          Service = [
+            "ec2.amazonaws.com",
+            "eks.amazonaws.com"
+          ]
         }
+        Action = "sts:AssumeRole"
       }
     ]
   })
 
   tags = {
-    Name = "node-role"
+    Name = "eks-role"
   }
 }
 

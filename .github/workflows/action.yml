@@ -79,7 +79,7 @@ jobs:
 
       - name: Install AWS CLI
         run: |
-          curl "https://d1uj6qtbmh3dt5.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
           aws --version
@@ -93,7 +93,7 @@ jobs:
 
       - name: Kubeconfig setup
         run: |
-          aws eks update-kubeconfig --name your-cluster-name --region ${{ secrets.AWS_REGION }}
+          aws eks update-kubeconfig --name k8s --region ${{ secrets.AWS_REGION }}
 
       - name: Run Ansible playbook
         env:

@@ -52,7 +52,7 @@ module "kubernetes" {
   node_desired_size  = 1
   node_max_size      = 1
   node_min_size      = 1
-  region      = var.AWS_REGION
+  region             = var.AWS_REGION
   kubernetes_version = "1.30"
   cluster_name       = "k8s"
   cluster_zone       = var.AWS_REGION
