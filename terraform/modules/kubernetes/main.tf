@@ -109,7 +109,7 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
 # Создание группы узлов (Node Group) для EKS
 resource "aws_eks_node_group" "k8s_node_group" {
   cluster_name    = aws_eks_cluster.k8s_cluster.name
-  node_role_arn   = aws_iam_role.node_role.arn
+  node_role_arn   = aws_iam_role.eks_role.arn
   subnet_ids = [
       aws_subnet.k8s_subnet_a.id,
       aws_subnet.k8s_subnet_b.id
