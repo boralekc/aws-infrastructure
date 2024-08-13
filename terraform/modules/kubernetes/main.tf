@@ -8,14 +8,25 @@ resource "aws_vpc" "k8s_network" {
   }
 }
 
-# Создание подсети
-resource "aws_subnet" "k8s_subnet" {
+# Создание подсети a
+resource "aws_subnet" "k8s_subnet_a" {
   vpc_id            = aws_vpc.k8s_network.id
   cidr_block        = "10.200.0.0/24"
-  availability_zone = var.cluster_zone
+  availability_zone = "${var.cluster_zone}-a"
   map_public_ip_on_launch = true
   tags = {
-    Name = "k8s-subnet"
+    Name = "k8s-subnet-a"
+  }
+}
+
+# Создание подсети b
+resource "aws_subnet" "k8s_subnet_b" {
+  vpc_id            = aws_vpc.k8s_network.id
+  cidr_block        = "10.200.0.0/24"
+  availability_zone = "${var.cluster_zone}-b"
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "k8s-subnet-b"
   }
 }
 
@@ -48,7 +59,10 @@ resource "aws_eks_cluster" "k8s_cluster" {
   role_arn  = aws_iam_role.eks_role.arn
   version   = var.kubernetes_version
   vpc_config {
-    subnet_ids = [aws_subnet.k8s_subnet.id]
+    subnet_ids = [
+      aws_subnet.k8s_subnet_a.id,
+      aws_subnet.k8s_subnet_b.id
+    ]
     security_group_ids = [aws_security_group.k8s_sg.id]
   }
 
@@ -89,7 +103,10 @@ resource "aws_iam_role_policy_attachment" "eks_policy" {
 resource "aws_eks_node_group" "k8s_node_group" {
   cluster_name    = aws_eks_cluster.k8s_cluster.name
   node_role_arn   = aws_iam_role.node_role.arn
-  subnet_ids      = [aws_subnet.k8s_subnet.id]
+  subnet_ids = [
+      aws_subnet.k8s_subnet_a.id,
+      aws_subnet.k8s_subnet_b.id
+    ]
   scaling_config {
     desired_size = var.node_desired_size
     max_size     = var.node_max_size
