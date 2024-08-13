@@ -8,13 +8,23 @@ resource "aws_vpc" "postgres" {
   }
 }
 
-# Создание подсети
-resource "aws_subnet" "postgres" {
+# Создание подсети a
+resource "aws_subnet" "postgres_subnet_a" {
   vpc_id     = aws_vpc.postgres.id
   cidr_block = "10.0.1.0/24"
   availability_zone = "${var.availability_zone}a"
   tags = {
-    Name = "${var.network_name}-subnet"
+    Name = "${var.network_name}-subnet-a"
+  }
+}
+
+# Создание подсети b
+resource "aws_subnet" "postgres_subnet_b" {
+  vpc_id     = aws_vpc.postgres.id
+  cidr_block = "10.0.2.0/24"
+  availability_zone = "${var.availability_zone}b"
+  tags = {
+    Name = "${var.network_name}-subnet-b"
   }
 }
 
@@ -70,7 +80,10 @@ resource "aws_db_instance" "postgres" {
 # Создание группы подсетей для RDS
 resource "aws_db_subnet_group" "postgres" {
   name       = "${var.network_name}-db-subnet-group"
-  subnet_ids = [aws_subnet.postgres.id]
+  subnet_ids = [
+    aws_subnet.postgres_subnet_a.id,
+    aws_subnet.postgres_subnet_b.id
+  ]
 
   tags = {
     Name = "${var.network_name}-db-subnet-group"
