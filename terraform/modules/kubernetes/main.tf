@@ -8,27 +8,26 @@ resource "aws_vpc" "k8s_network" {
   }
 }
 
-# Создание подсети a
 resource "aws_subnet" "k8s_subnet_a" {
   vpc_id            = aws_vpc.k8s_network.id
   cidr_block        = "10.200.0.0/24"
-  availability_zone = "${var.cluster_zone}a"
+  availability_zone = element(data.aws_availability_zones.available.names, 0)
   map_public_ip_on_launch = true
   tags = {
     Name = "k8s-subnet-a"
   }
 }
 
-# Создание подсети b
 resource "aws_subnet" "k8s_subnet_b" {
   vpc_id            = aws_vpc.k8s_network.id
   cidr_block        = "10.200.1.0/24"
-  availability_zone = "${var.cluster_zone}b"
+  availability_zone = element(data.aws_availability_zones.available.names, 1)
   map_public_ip_on_launch = true
   tags = {
     Name = "k8s-subnet-b"
   }
 }
+
 
 # Создание группы безопасности
 resource "aws_security_group" "k8s_sg" {
@@ -76,27 +75,31 @@ resource "aws_iam_role" "eks_role" {
   name = "eks-cluster-role"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action    = "sts:AssumeRole"
-        Effect    = "Allow"
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
       }
-    ]
+    }]
+    Version = "2012-10-17"
   })
-
-  tags = {
-    Name = "eks-role"
-  }
 }
 
 # Политика IAM для роли EKS
-resource "aws_iam_role_policy_attachment" "eks_policy" {
+resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = aws_iam_role.eks_role.name
-  policy_arn  = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks_role.name
 }
 
 # Создание группы узлов (Node Group) для EKS
@@ -115,9 +118,11 @@ resource "aws_eks_node_group" "k8s_node_group" {
 
   instance_types = ["t3.medium"] # Укажите тип инстанса EC2 для узлов
 
-  tags = {
-    Name = "k8s-node-group"
-  }
+  depends_on = [
+    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
+    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
+    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
+  ]
 }
 
 # Создание роли IAM для узлов EKS
