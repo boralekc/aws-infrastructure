@@ -79,8 +79,12 @@ resource "aws_iam_role" "eks_role" {
       Action = "sts:AssumeRole"
       Effect = "Allow"
       Principal = {
-        Service = "ec2.amazonaws.com"
+        Service = [
+            "ec2.amazonaws.com",
+            "eks.amazonaws.com"
+          ]
       }
+      Action = "sts:AssumeRole"
     }]
     Version = "2012-10-17"
   })
@@ -123,46 +127,4 @@ resource "aws_eks_node_group" "k8s_node_group" {
     aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
     aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
   ]
-}
-
-# Создание роли IAM для узлов EKS
-resource "aws_iam_role" "node_role" {
-  name = "eks-cluster-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action    = "sts:AssumeRole"
-        Effect    = "Allow"
-        Principal = {
-          Service = [
-            "ec2.amazonaws.com",
-            "eks.amazonaws.com"
-          ]
-        }
-        Action = "sts:AssumeRole"
-      }
-    ]
-  })
-
-  tags = {
-    Name = "eks-role"
-  }
-}
-
-# Политики IAM для роли узлов
-resource "aws_iam_role_policy_attachment" "node_policy" {
-  role       = aws_iam_role.node_role.name
-  policy_arn  = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-}
-
-resource "aws_iam_role_policy_attachment" "cni_policy" {
-  role       = aws_iam_role.node_role.name
-  policy_arn  = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-}
-
-resource "aws_iam_role_policy_attachment" "ec2_policy" {
-  role       = aws_iam_role.node_role.name
-  policy_arn  = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
