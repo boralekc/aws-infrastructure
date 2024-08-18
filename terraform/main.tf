@@ -123,12 +123,12 @@ module "eks" {
 #   cluster_zone       = var.AWS_REGION
 # }
 
-module "eks_node_group" {
-  source             = "./modules/eks_node_group"
-  eks_cluster_name   = module.k8s.cluster_name
-  node_desired_size  = 1
-  node_max_size      = 1
-  node_min_size      = 1
-  subnet_a           = module.k8s.subnet_a
-  subnet_b           = module.k8s.subnet_b
-}
+# module "eks_node_group" {
+#   source             = "./modules/eks_node_group"
+#   eks_cluster_name   = module.k8s.cluster_name
+#   node_desired_size  = 1
+#   node_max_size      = 1
+#   node_min_size      = 1
+#   subnet_a           = module.k8s.subnet_a
+#   subnet_b           = module.k8s.subnet_b
+# }
