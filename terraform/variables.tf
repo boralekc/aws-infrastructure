@@ -10,6 +10,10 @@ variable "DB_PASSWORD" {
   description = "Database password"
 }
 
+variable "CLUSTER_NAME" {
+  description = "Database password"
+}
+
 # variable "CLOUD_ID" {
 #   description = "Cloud id"
 # }
