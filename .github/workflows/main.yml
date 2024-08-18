@@ -48,7 +48,7 @@ jobs:
       run: terraform plan -input=false -var="CLUSTER_NAME=${{ vars.CLUSTER_NAME }}" -var="AWS_REGION=${{ vars.AWS_REGION }}" -var="DB_USER=${{ secrets.DB_USER }}" -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
 
     - name: Apply Terraform changes
-      run: terraform apply --auto-approve -var="CLUSTER_NAME=${{ vars.CLUSTER_NAME }}" -var="DB_USER=${{ secrets.DB_USER }}" -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+      run: terraform apply --auto-approve -var="CLUSTER_NAME=${{ vars.CLUSTER_NAME }}" -var="AWS_REGION=${{ vars.AWS_REGION }}" -var="DB_USER=${{ secrets.DB_USER }}" -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
 
   # ingress-nginx:
   #   name: "Deploy ingress-nginx"
