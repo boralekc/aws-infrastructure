@@ -28,7 +28,6 @@ resource "aws_subnet" "k8s_subnet_b" {
   }
 }
 
-
 # Создание группы безопасности
 resource "aws_security_group" "k8s_sg" {
   vpc_id = aws_vpc.k8s_network.id

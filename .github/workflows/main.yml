@@ -50,6 +50,21 @@ jobs:
     - name: Apply Terraform changes
       run: terraform apply --auto-approve -var="AWS_REGION=${{ vars.AWS_REGION }}" -var="DB_USER=${{ secrets.DB_USER }}" -var="DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
 
+    - name: Setup kubectl
+      run: |
+        aws eks update-kubeconfig --name your-cluster-name --region ${{ vars.AWS_REGION }}
+
+    - name: Add Terraform IAM Role to aws-auth ConfigMap
+      run: |
+        kubectl get configmap -n kube-system aws-auth -o yaml > aws-auth.yaml
+        cat <<EOF >> aws-auth.yaml
+        - rolearn: arn:aws:iam::975050337330:role/terraform
+          username: terraform
+          groups:
+            - system:masters
+        EOF
+        kubectl apply -f aws-auth.yaml
+
   # ingress-nginx:
   #   name: "Deploy ingress-nginx"
   #   needs: terraform
