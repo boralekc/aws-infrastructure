@@ -18,21 +18,107 @@ provider "aws" {
   region = var.AWS_REGION
 }
 
-module "rds" {
-  source             = "./modules/rds"
-  network_name       = "postgres"
-  cluster_name       = "postgres"
-  availability_zone  =  var.AWS_REGION
-  postgres_version   =  15
-  disk_size          = "10"
-  instance_class     = "db.t3.medium"
-  db_user            = var.DB_USER
-  db_password        = var.DB_PASSWORD
-  db_dev             = "sw-site-db-dev"
-  db_prod            = "sw-site-db-prod"
-  db_keycloak        = "db-keycloak"
-  db_sonarqube       = "sonarDB"
+module "db" {
+  source = "terraform-aws-modules/rds/aws"
+
+  identifier = "courseway"
+
+  engine            = "postgres"
+  engine_version    = "15"
+  instance_class    = "db.t3.medium"
+  allocated_storage = 20
+
+  db_name  = "sw-site-db-prod"
+  username = var.DB_USER
+  password = var.DB_PASSWORD
+  port     = "5432"
+
+  iam_database_authentication_enabled = true
+
+  vpc_security_group_ids = ["sg-12345678"]
+
+  maintenance_window = "Mon:00:00-Mon:03:00"
+  backup_window      = "03:00-06:00"
+
+  # Enhanced Monitoring - see example for details on how to create the role
+  # by yourself, in case you don't want to create it automatically
+  monitoring_interval    = "30"
+  monitoring_role_name   = "courseway-postgres"
+  create_monitoring_role = true
+
+  tags = {
+    Owner       = "user"
+    Environment = "dev"
+  }
+
+  # DB subnet group
+  create_db_subnet_group = true
+  subnet_ids             = ["subnet-12345678", "subnet-87654321"]
+
+  # DB parameter group
+  family = "postgres15"
+
+  # DB option group
+  major_engine_version = "15"
+
+  # Database Deletion Protection
+  deletion_protection = true
 }
+
+  resource "null_resource" "init_db" {
+  depends_on = [module.db]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.endpoint} -U ${var.DB_USER} -d main_db -c "CREATE DATABASE sw-site-db-dev;"
+      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.endpoint} -U ${var.DB_USER} -d main_db -c "CREATE DATABASE db-keycloak;"
+    EOT
+  }
+
+  # parameters = [
+  #   {
+  #     name  = "character_set_client"
+  #     value = "utf8mb4"
+  #   },
+  #   {
+  #     name  = "character_set_server"
+  #     value = "utf8mb4"
+  #   }
+  # ]
+
+  # options = [
+  #   {
+  #     option_name = "MARIADB_AUDIT_PLUGIN"
+
+  #     option_settings = [
+  #       {
+  #         name  = "SERVER_AUDIT_EVENTS"
+  #         value = "CONNECT"
+  #       },
+  #       {
+  #         name  = "SERVER_AUDIT_FILE_ROTATIONS"
+  #         value = "37"
+  #       },
+  #     ]
+  #   },
+  # ]
+}
+
+# module "rds" {
+#   source             = "./modules/rds"
+#   network_name       = "postgres"
+#   cluster_name       = "postgres"
+#   availability_zone  =  var.AWS_REGION
+#   postgres_version   =  15
+#   disk_size          = "10"
+#   instance_class     = "db.t3.medium"
+#   db_user            = var.DB_USER
+#   db_password        = var.DB_PASSWORD
+#   db_dev             = "sw-site-db-dev"
+#   db_prod            = "sw-site-db-prod"
+#   db_keycloak        = "db-keycloak"
+#   db_sonarqube       = "sonarDB"
+# }
 
 module "s3" {
   source      = "./modules/s3"
@@ -76,7 +162,7 @@ module "eks" {
     example = {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["t3.medium"]
+      instance_types = ["m5.large"]
 
       min_size     = 1
       max_size     = 1
@@ -90,9 +176,9 @@ module "eks" {
 
   access_entries = {
     # One access entry with a policy associated
-    example = {
+    terraform_access = {
       kubernetes_groups = []
-      principal_arn     = "arn:aws:iam::123456789012:role/something"
+      principal_arn     = "arn:aws:iam::975050337330:role/terraform"
 
       policy_associations = {
         example = {
