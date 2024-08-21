@@ -39,8 +39,8 @@ module "eks" {
 
   vpc_id = module.eks-vpc.vpc_id
   subnet_ids = [
-    module.eks-vpc.public_subnets[*].id,
-    module.eks-vpc.private_subnets[*].id
+    module.eks-vpc.public_subnets[*],
+    module.eks-vpc.private_subnets[*]
   ]
 
   eks_managed_node_group_defaults = {
