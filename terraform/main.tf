@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.AWS_REGION
+}
+
 terraform {
   required_providers {
     aws = {
@@ -14,66 +18,97 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = var.AWS_REGION
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 4.0"
+
+  name                = "eks-rds-vpc"
+  cidr                = "10.0.0.0/16"
+  enable_dns_support  = true
+  enable_dns_hostnames = true
+  azs                 = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
+
+  # Публичные подсети для EKS
+  public_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+
+  # Приватные подсети для EKS и RDS
+  private_subnets     = [
+    "10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24",  # Для EKS
+    "10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"   # Для RDS
+  ]
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  tags = {
+    Name = "eks-rds-vpc"
+  }
 }
 
 module "db" {
   source = "terraform-aws-modules/rds/aws"
-
+  
   identifier = "courseway"
-
+  
   engine            = "postgres"
   engine_version    = "15"
   instance_class    = "db.t3.medium"
   allocated_storage = 20
-
+  
   db_name  = "sw-site-db-prod"
   username = var.DB_USER
   password = var.DB_PASSWORD
   port     = "5432"
 
+  manage_master_user_password = false
+  
   iam_database_authentication_enabled = true
-
-  vpc_security_group_ids = ["sg-12345678"]
-
+  
+  # vpc_security_group_ids = ["sg-12345678"]
+  
   maintenance_window = "Mon:00:00-Mon:03:00"
   backup_window      = "03:00-06:00"
-
+  
   # Enhanced Monitoring - see example for details on how to create the role
   # by yourself, in case you don't want to create it automatically
   monitoring_interval    = "30"
   monitoring_role_name   = "courseway-postgres"
   create_monitoring_role = true
-
+  
   tags = {
     Owner       = "user"
     Environment = "dev"
   }
-
+  
   # DB subnet group
   create_db_subnet_group = true
-  subnet_ids             = ["subnet-12345678", "subnet-87654321"]
-
+  subnet_ids             = [
+    module.vpc.private_subnets[3],  # 10.0.21.0/24
+    module.vpc.private_subnets[4],  # 10.0.22.0/24
+    module.vpc.private_subnets[5]   # 10.0.23.0/24
+  ]
+  
   # DB parameter group
   family = "postgres15"
-
+  
   # DB option group
   major_engine_version = "15"
-
+  
   # Database Deletion Protection
   deletion_protection = true
 }
 
-  resource "null_resource" "init_db" {
-  depends_on = [module.db]
+# resource "null_resource" "init_db" {
+#   depends_on = [module.db]
+  
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.endpoint} -U ${var.DB_USER} -d main_db -c "CREATE DATABASE sw-site-db-dev;"
+#       PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.endpoint} -U ${var.DB_USER} -d main_db -c "CREATE DATABASE db-keycloak;"
+#     EOT
+#   }
+# }
 
-  provisioner "local-exec" {
-    command = <<EOT
-      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.endpoint} -U ${var.DB_USER} -d main_db -c "CREATE DATABASE sw-site-db-dev;"
-      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.endpoint} -U ${var.DB_USER} -d main_db -c "CREATE DATABASE db-keycloak;"
-    EOT
-  }
 
   # parameters = [
   #   {
@@ -102,7 +137,6 @@ module "db" {
   #     ]
   #   },
   # ]
-}
 
 # module "rds" {
 #   source             = "./modules/rds"
