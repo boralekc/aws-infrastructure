@@ -39,7 +39,7 @@ module "eks" {
 
   vpc_id = module.eks-vpc.vpc_id
   subnet_ids = [
-    module.eks-vpc.private_subnets,
+    module.eks-vpc.public_subnets,
     module.eks-vpc.private_subnets
   ]
 
