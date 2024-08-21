@@ -54,8 +54,8 @@ module "db" {
   # DB subnet group
   create_db_subnet_group = true
   subnet_ids             = [
-    module.vpc.private_subnets.id,
-    module.vpc.private_subnets.id
+    module.rds-vpc.private_subnets.id,
+    module.rds-vpc.private_subnets.id
   ]
   
   # DB parameter group

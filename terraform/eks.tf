@@ -37,10 +37,10 @@ module "eks" {
     vpc-cni                = {}
   }
 
-  vpc_id = module.vpc.vpc_id
+  vpc_id = module.eks-vpc.vpc_id
   subnet_ids = [
-    module.vpc.private_subnets.id,
-    module.vpc.private_subnets.id
+    module.eks-vpc.private_subnets.id,
+    module.eks-vpc.private_subnets.id
   ]
 
   eks_managed_node_group_defaults = {
