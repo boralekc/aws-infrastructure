@@ -20,25 +20,27 @@ terraform {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 4.0"
+  version = "~> 5.13"
 
   name                = "eks-rds-vpc"
   cidr                = "10.0.0.0/16"
-  enable_dns_support  = true
-  enable_dns_hostnames = true
-  azs                 = ["eu-north-1a", "eu-north-1b", "eu-north-1c"]
+
+  azs                 = ["eu-north-1a", "eu-north-1b"]
 
   # Публичные подсети для EKS
-  public_subnets      = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets      = ["10.0.1.0/24", "10.0.2.0/24"]
 
   # Приватные подсети для EKS и RDS
   private_subnets     = [
-    "10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24",  # Для EKS
-    "10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"   # Для RDS
+    "10.0.11.0/24", "10.0.12.0/24",  # Для EKS
+    "10.0.21.0/24", "10.0.22.0/24",  # Для RDS
   ]
 
+  enable_dns_support  = true
+  enable_dns_hostnames = true
   enable_nat_gateway = true
   single_nat_gateway = true
+  one_nat_gateway_per_az = false
 
   tags = {
     Name = "eks-rds-vpc"
@@ -55,7 +57,7 @@ module "db" {
   instance_class    = "db.t3.medium"
   allocated_storage = 20
   
-  db_name  = "sw-site-db-prod"
+  db_name  = "proddb"
   username = var.DB_USER
   password = var.DB_PASSWORD
   port     = "5432"
@@ -85,7 +87,6 @@ module "db" {
   subnet_ids             = [
     module.vpc.private_subnets[3],  # 10.0.21.0/24
     module.vpc.private_subnets[4],  # 10.0.22.0/24
-    module.vpc.private_subnets[5]   # 10.0.23.0/24
   ]
   
   # DB parameter group
@@ -169,12 +170,59 @@ module "registry" {
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.0"
+  version = "~> 20.24"
 
   cluster_name    = var.CLUSTER_NAME
   cluster_version = "1.30"
 
+  cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
+
+  vpc_id = module.vpc.vpc_id
+  subnet_ids = [
+    module.vpc.private_subnets[1],
+    module.vpc.private_subnets[2]
+  ]
+
+  enable_irsa = true
+
+  eks_managed_node_group_defaults = {
+    disk_size = 50
+  }
+
+  eks_managed_node_groups = {
+    general = {
+      desired_size = 1
+      min_size     = 1
+      max_size     = 10
+
+      labels = {
+        role = "general"
+      }
+
+      instance_types = ["t3.small"]
+      capacity_type  = "ON_DEMAND"
+    }
+
+    spot = {
+      desired_size = 1
+      min_size     = 1
+      max_size     = 10
+
+      labels = {
+        role = "spot"
+      }
+
+      taints = [{
+        key = "market"
+        value = "spot"
+        effect = "NO_SHEDULE"
+      }]
+
+      instance_types = ["t3.micro"]
+      capacity_type  = "SPOT"
+    }
+  }
 
   cluster_addons = {
     coredns                = {}
@@ -182,28 +230,7 @@ module "eks" {
     kube-proxy             = {}
     vpc-cni                = {}
   }
-
-  vpc_id                   = "vpc-1234556abcdef"
-  subnet_ids               = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
-  control_plane_subnet_ids = ["subnet-xyzde987", "subnet-slkjf456", "subnet-qeiru789"]
-
-  # EKS Managed Node Group(s)
-  eks_managed_node_group_defaults = {
-    instance_types = ["m6i.large", "m5.large", "m5n.large", "m5zn.large"]
-  }
-
-  eks_managed_node_groups = {
-    example = {
-      # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
-      ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["m5.large"]
-
-      min_size     = 1
-      max_size     = 1
-      desired_size = 1
-    }
-  }
-
+ 
   # Cluster access entry
   # To add the current caller identity as an administrator
   enable_cluster_creator_admin_permissions = true
@@ -231,6 +258,97 @@ module "eks" {
     Terraform   = "true"
   }
 }
+
+# module "allow_eks_access_iam_policy" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-policy"
+#   version = "5.44.0"
+
+#   name = "allow-eks-access"
+#   create_policy = true
+
+#   policy = jsondecode({
+#     Version = "2024-08-21"
+#     Statement = [
+#       {
+#         Action = [
+#           "eks:DescribeCluster",
+#         ]
+#         Effect = "Allow"
+#         Resource = "*"
+#       },
+#     ]
+#   })
+# }
+
+# module "eks_admins_access_iam_role" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-assumable-role"
+#   version = "5.44.0"
+
+#   role_name = "eks-admin"
+#   create_role = true
+#   role_requires_mfa = false
+
+#   custom_role_policy_arns = [module.allow_eks_access_iam_policy.arn]
+
+#   trusted_role_arns = [
+#     "arn:aws:iam::${module.vpc.vpc_owner_id}:root"
+#   ]
+# }
+
+# module "k8s_iam_user" {
+#   source  = "terraform-aws-modules/iam/aws//modules/iam-user"
+
+#   name          = "k8s"
+#   create_iam_access_key = false
+#   create_iam_user_login_profile = false
+
+#   force_destroy = true
+# }
+
+# module "allow_assume_eks_admins_iam_policy" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-policy"
+#   version = "5.44.0"
+
+#   name = "allow-assume_eks_admins_iam_role"
+#   create_policy = true
+
+#   policy = jsondecode({
+#     Version = "2024-08-21"
+#     Statement = [
+#       {
+#         Action = [
+#           "sts:AssumeRole",
+#         ]
+#         Effect = "Allow"
+#         Resource = "module.eks_admins_iam_role.iam_role_arn"
+#       },
+#     ]
+#   })
+# }
+
+# module "iam_group_with_policies" {
+#   source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-policies"
+#   version = "5.44.0"
+
+#   name = "eks-admin"
+#   create_group = true
+
+
+#   group_users = [ module.k8s_iam_user.iam_user_name ]
+
+#   attach_iam_self_management_policy = true
+
+#   custom_group_policy_arns = [
+#     "arn:aws:iam::aws:policy/AdministratorAccess",
+#   ]
+
+#   custom_group_policies = [
+#     {
+#       name   = "AllowS3Listing"
+#       policy = data.aws_iam_policy_document.sample.json
+#     }
+#   ]
+# }
 
 # module "k8s" {
 #   source             = "./modules/k8s"
