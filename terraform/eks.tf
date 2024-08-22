@@ -50,7 +50,7 @@ module "eks" {
     example = {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["m5.medium"]
+      instance_types = ["t3.small"]
 
       min_size     = 2
       max_size     = 10
@@ -66,7 +66,7 @@ module "eks" {
     # One access entry with a policy associated
     terraform_access = {
       kubernetes_groups = []
-      principal_arn     = "arn:aws:iam::975050337330:role/terraform"
+      principal_arn     = "arn:aws:iam::975050337330:role/k8s"
 
       policy_associations = {
         example = {
