@@ -22,29 +22,24 @@ module "eks-vpc" {
   }
 }
 
-module "iam_role" {
-  source          = "terraform-aws-modules/iam/aws"
-  version         = "~> 6.0"
+module "iam_eks_role" {
+  source      = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
 
-  name            = "k8s"
-  path            = "/"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action    = "sts:AssumeRole",
-        Effect    = "Allow",
-        Principal = {
-          Service = "eks.amazonaws.com"  # Может быть другим сервисом в зависимости от вашей настройки
-        }
-      }
-    ]
-  })
+  role_name   = "k8s"
+
+  cluster_service_accounts = {
+    "k8s" = ["default:k8s"]
+  }
 
   tags = {
-    Name = "k8s"
+    Name = "eks-role"
   }
+
+  # role_policy_arns = {
+  #   AmazonEKS_CNI_Policy = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  # }
 }
+
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
