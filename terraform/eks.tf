@@ -66,7 +66,7 @@ module "eks" {
     # One access entry with a policy associated
     terraform_access = {
       kubernetes_groups = []
-      principal_arn     = "arn:aws:iam::975050337330:role/k8s"
+      principal_arn     = "arn:aws:iam::975050337330:role/terraform"
 
       policy_associations = {
         example = {
