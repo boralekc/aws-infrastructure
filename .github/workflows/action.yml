@@ -86,7 +86,7 @@ jobs:
 
       - name: Kubeconfig setup
         run: |
-          aws eks update-kubeconfig --name k8s --region ${{ secrets.AWS_REGION }}
+          aws eks update-kubeconfig --name k8s --region ${{ inputs.AWS_REGION }}
 
       - name: Run Ansible playbook
         env:
