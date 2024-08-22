@@ -22,6 +22,30 @@ module "eks-vpc" {
   }
 }
 
+module "iam_role" {
+  source          = "terraform-aws-modules/iam/aws"
+  version         = "~> 6.0"
+
+  name            = "k8s"
+  path            = "/"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action    = "sts:AssumeRole",
+        Effect    = "Allow",
+        Principal = {
+          Service = "eks.amazonaws.com"  # Может быть другим сервисом в зависимости от вашей настройки
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "k8s"
+  }
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.24"
@@ -47,7 +71,7 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-    example = {
+    courseway = {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
       instance_types = ["t3.small"]
@@ -66,7 +90,7 @@ module "eks" {
     # One access entry with a policy associated
     terraform_access = {
       kubernetes_groups = []
-      principal_arn     = "arn:aws:iam::975050337330:role/terraform"
+      principal_arn     = "arn:aws:iam::975050337330:role/k8s"
 
       policy_associations = {
         example = {
