@@ -9,6 +9,7 @@ module "eks-vpc" {
 
   public_subnets      = ["10.0.1.0/24", "10.0.2.0/24"]
   private_subnets     = ["10.0.11.0/24", "10.0.12.0/24"]
+  intra_subnets       = ["10.0.21.0/24", "10.0.22.0/24"]
 
   enable_dns_support  = true
   enable_dns_hostnames = true
@@ -37,11 +38,9 @@ module "eks" {
     vpc-cni                = {}
   }
 
-  vpc_id = module.eks-vpc.vpc_id
-  subnet_ids = [
-    module.eks-vpc.public_subnets[*],
-    module.eks-vpc.private_subnets[*]
-  ]
+  vpc_id                   = module.eks-vpc.vpc_id
+  subnet_ids               = module.eks-vpc.private_subnets
+  control_plane_subnet_ids = module.eks-vpc.intra_subnets
 
   eks_managed_node_group_defaults = {
     disk_size = 50
