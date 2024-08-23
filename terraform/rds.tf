@@ -66,7 +66,7 @@ module "db" {
 }
 
 output "db_endpoint" {
-  value = module.db.this_db_instance_address
+  value = module.db.db_instance_endpoint
 }
 
 resource "null_resource" "init_db" {
@@ -74,8 +74,8 @@ resource "null_resource" "init_db" {
 
   provisioner "local-exec" {
     command = <<EOT
-      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.this_db_instance_address} -U ${var.DB_USER} -d proddb -c "CREATE DATABASE sw-site-db-dev;"
-      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.this_db_instance_address} -U ${var.DB_USER} -d proddb -c "CREATE DATABASE db-keycloak;"
+      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.db_instance_endpoint} -U ${var.DB_USER} -d proddb -c "CREATE DATABASE sw-site-db-dev;"
+      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.db_instance_endpoint} -U ${var.DB_USER} -d proddb -c "CREATE DATABASE db-keycloak;"
     EOT
   }
 }
