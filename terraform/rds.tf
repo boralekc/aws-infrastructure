@@ -31,7 +31,7 @@ module "devdb" {
   instance_class    = "db.t3.medium"
   allocated_storage = 20
   
-  db_name  = "sw-site-db-dev"
+  db_name  = "devdb"
   username = var.DB_USER
   password = var.DB_PASSWORD
   port     = "5432"
@@ -75,7 +75,7 @@ module "proddb" {
   instance_class    = "db.t3.medium"
   allocated_storage = 20
   
-  db_name  = "sw-site-db-prod"
+  db_name  = "proddb"
   username = var.DB_USER
   password = var.DB_PASSWORD
   port     = "5432"
@@ -119,7 +119,7 @@ module "keycloakdb" {
   instance_class    = "db.t3.medium"
   allocated_storage = 20
   
-  db_name  = "db-keycloak"
+  db_name  = "keycloakdb"
   username = var.DB_USER
   password = var.DB_PASSWORD
   port     = "5432"
