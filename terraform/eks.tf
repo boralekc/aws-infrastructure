@@ -56,30 +56,6 @@ resource "aws_iam_role_policy_attachment" "eks_vpc_policy" {
   role     = aws_iam_role.eks_role.name
 }
 
-module "eks-vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.13"
-
-  name                = "eks-vpc"
-  cidr                = "10.0.0.0/16"
-
-  azs                 = ["eu-north-1a", "eu-north-1b"]
-
-  public_subnets      = ["10.0.1.0/24", "10.0.2.0/24"]
-  private_subnets     = ["10.0.11.0/24", "10.0.12.0/24"]
-  intra_subnets       = ["10.0.21.0/24", "10.0.22.0/24"]
-
-  enable_dns_support  = true
-  enable_dns_hostnames = true
-  enable_nat_gateway = true
-  single_nat_gateway = true
-  one_nat_gateway_per_az = false
-
-  tags = {
-    Name = "eks-vpc"
-  }
-}
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.24"
