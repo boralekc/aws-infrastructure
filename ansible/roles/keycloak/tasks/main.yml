@@ -8,24 +8,6 @@
         name: "{{ app_namespace }}"
     state: present
 
-- name: Download PostgreSQL SSL certificate
-  shell: |
-    mkdir -p ~/.postgresql
-    wget "https://storage.yandexcloud.net/cloud-certs/CA.pem" --output-document ~/.postgresql/root.crt
-
-- name: Create PostgreSQL SSL Secret
-  kubernetes.core.k8s:
-    kubeconfig: "{{ kubeconfig }}"
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: postgres-ssl-secret
-        namespace: "{{ app_namespace }}"
-      type: Opaque
-      data:
-        root.crt: "{{ lookup('file', '~/.postgresql/root.crt') | b64encode }}"
-
 - name: Install keycloak
   kubernetes.core.helm:
     kubeconfig: "{{ kubeconfig }}"

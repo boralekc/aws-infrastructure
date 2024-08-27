@@ -97,27 +97,23 @@ jobs:
 #         YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
 #         YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 
-#   keycloak:
-#     name: "Deploy keycloak"
-#     needs: 
-#       - clusterissuer-keycloak
-#       - clusterissuer-keycloak-admin
-#     uses: ./.github/workflows/action.yml
-#     with:
-#         APP_HOST: ${{ vars.KEYCLOAK_HOST }}
-#         APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
-#         PLAYBOOK: "keycloak.yml"
-#         ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-#     secrets:
-#         YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-#         YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
-#         DB_HOST: ${{ secrets.DB_HOST }}
-#         DB_NAME: ${{ secrets.DB_NAME_KEYCLOAK }}
-#         DB_USER: ${{ secrets.DB_USER }}
-#         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#         DB_PORT: ${{ secrets.DB_PORT }}
-#         USER_NAME: ${{ secrets.KEYCLOAK_ADMIN }}
-#         USER_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+  keycloak:
+    name: "Deploy keycloak"
+    uses: ./.github/workflows/action.yml
+    with:
+        AWS_REGION: ${{ vars.AWS_REGION }}
+        APP_HOST: ${{ vars.KEYCLOAK_HOST }}
+        APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
+        PLAYBOOK: "keycloak.yml"
+        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+    secrets:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_NAME: ${{ secrets.DB_NAME_KEYCLOAK }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_PORT: ${{ secrets.DB_PORT }}
+        USER_NAME: ${{ secrets.KEYCLOAK_ADMIN }}
+        USER_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
 
 #   argocd:
 #     name: "Deploy argocd"
