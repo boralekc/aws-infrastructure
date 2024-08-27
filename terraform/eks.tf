@@ -80,21 +80,3 @@ module "eks" {
     }
   }
 }
-
-module "iam_eks_role" {
-  source      = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
-
-  role_name   = "k8s"
-
-  cluster_service_accounts = {
-    "k8s" = ["default:k8s"]
-  }
-
-  tags = {
-    Name = "eks-role"
-  }
-
-  # role_policy_arns = {
-  #   AmazonEKS_CNI_Policy = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  # }
-}
