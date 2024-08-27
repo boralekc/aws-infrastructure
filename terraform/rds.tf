@@ -24,7 +24,7 @@ module "rds-vpc" {
 module "devdb" {
   source = "terraform-aws-modules/rds/aws"
   
-  identifier = "courseway"
+  identifier = "courseway-dev"
   
   engine            = "postgres"
   engine_version    = "16"
@@ -68,7 +68,7 @@ module "devdb" {
 module "proddb" {
   source = "terraform-aws-modules/rds/aws"
   
-  identifier = "courseway"
+  identifier = "courseway-prod"
   
   engine            = "postgres"
   engine_version    = "16"
@@ -112,7 +112,7 @@ module "proddb" {
 module "keycloakdb" {
   source = "terraform-aws-modules/rds/aws"
   
-  identifier = "courseway"
+  identifier = "keycloak"
   
   engine            = "postgres"
   engine_version    = "16"
