@@ -10,47 +10,43 @@ permissions:
   contents: read   # Это разрешение требуется для использования actions/checkout
 
 jobs:    
-#   cert-manager:
-#     name: "Deploy cert-manager"
-#     needs: terraform
-#     uses: ./.github/workflows/action.yml
-#     with:
-#         PLAYBOOK: "cert-manager.yml"
-#         APP_HOST: ${{ vars.KEYCLOAK_HOST }}
-#         APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
-#         ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+  cert-manager:
+    name: "Deploy cert-manager"
+    uses: ./.github/workflows/action.yml
+    with:
+        AWS_REGION: ${{ vars.AWS_REGION }}
+        PLAYBOOK: "cert-manager.yml"
+        APP_HOST: ${{ vars.KEYCLOAK_HOST }}
+        APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
+        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
 
-#   clusterissuer-keycloak:
-#     name: "Deploy clusterissuer-keycloak"
-#     needs: cert-manager
-#     uses: ./.github/workflows/action.yml
-#     with:
-#         PLAYBOOK: "clusterissuer.yml"
-#         APP_HOST: ${{ vars.KEYCLOAK_HOST }}
-#         APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
-#         NAME_CLUSTERISSUER: "letskeycloak"
-#         ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-#         CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
-#         CLUSTERISSUER_NAME: ${{ vars.KEYCLOAK_ISSUER_NAME }}
-#     secrets:
-#         YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-#         YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  clusterissuer-keycloak:
+    name: "Deploy clusterissuer-keycloak"
+    needs: cert-manager
+    uses: ./.github/workflows/action.yml
+    with:
+        AWS_REGION: ${{ vars.AWS_REGION }}
+        PLAYBOOK: "clusterissuer.yml"
+        APP_HOST: ${{ vars.KEYCLOAK_HOST }}
+        APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
+        NAME_CLUSTERISSUER: "letskeycloak"
+        ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+        CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
+        CLUSTERISSUER_NAME: ${{ vars.KEYCLOAK_ISSUER_NAME }}
 
-#   clusterissuer-keycloak-admin:
-#       name: "Deploy clusterissuer-keycloak-admin"
-#       needs: cert-manager
-#       uses: ./.github/workflows/action.yml
-#       with:
-#           PLAYBOOK: "clusterissuer.yml"
-#           APP_HOST: ${{ vars.KEYCLOAK_HOST }}
-#           APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
-#           NAME_CLUSTERISSUER: "letskeycloakadmin"
-#           ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
-#           CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
-#           CLUSTERISSUER_NAME: ${{ vars.KEYCLOAK_ISSUER_ADMIN_NAME }}
-#       secrets:
-#           YC_SA_JSON_CREDENTIALS: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-#           YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
+  clusterissuer-keycloak-admin:
+      name: "Deploy clusterissuer-keycloak-admin"
+      needs: cert-manager
+      uses: ./.github/workflows/action.yml
+      with:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          PLAYBOOK: "clusterissuer.yml"
+          APP_HOST: ${{ vars.KEYCLOAK_HOST }}
+          APP_NAMESPACE: ${{ vars.KEYCLOAK_NAMESPACE }}
+          NAME_CLUSTERISSUER: "letskeycloakadmin"
+          ANSIBLE_CONFIG: ${{ vars.ANSIBLE_CONFIG }}
+          CHART_PATH: ${{ vars.CLUSTERISSUER_CHART_PATH }}
+          CLUSTERISSUER_NAME: ${{ vars.KEYCLOAK_ISSUER_ADMIN_NAME }}
 
 #   clusterissuer-argocd:
 #     name: "Deploy clusterissuer-argocd"
@@ -99,6 +95,7 @@ jobs:
 
   keycloak:
     name: "Deploy keycloak"
+    needs: clusterissuer-keycloak
     uses: ./.github/workflows/action.yml
     with:
         AWS_REGION: ${{ vars.AWS_REGION }}
