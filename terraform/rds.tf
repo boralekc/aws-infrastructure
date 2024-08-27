@@ -21,7 +21,7 @@ module "rds-vpc" {
   }
 }
 
-module "db-dev" {
+module "devdb" {
   source = "terraform-aws-modules/rds/aws"
   
   identifier = "courseway"
@@ -65,7 +65,7 @@ module "db-dev" {
   deletion_protection = true
 }
 
-module "db-prod" {
+module "proddb" {
   source = "terraform-aws-modules/rds/aws"
   
   identifier = "courseway"
@@ -109,7 +109,7 @@ module "db-prod" {
   deletion_protection = true
 }
 
-module "db-keycloak" {
+module "keycloakdb" {
   source = "terraform-aws-modules/rds/aws"
   
   identifier = "courseway"
