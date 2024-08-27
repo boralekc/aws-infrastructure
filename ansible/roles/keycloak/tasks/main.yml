@@ -67,14 +67,14 @@
       auth:
         adminUser: "{{ user_name }}"
         adminPassword: "{{ user_password }}"       
-      extraVolumes:
-        - name: postgres-ssl-volume
-          secret:
-            secretName: postgres-ssl-secret
-      extraVolumeMounts:
-        - name: postgres-ssl-volume
-          mountPath: /home/runner/.postgresql
-          readOnly: true
+      # extraVolumes:
+      #   - name: postgres-ssl-volume
+      #     secret:
+      #       secretName: postgres-ssl-secret
+      # extraVolumeMounts:
+      #   - name: postgres-ssl-volume
+      #     mountPath: /home/runner/.postgresql
+      #     readOnly: true
       extraEnvVars:
         - name: KEYCLOAK_PROXY_HEADERS
           value: "xforwarded"
