@@ -21,17 +21,17 @@ module "rds-vpc" {
   }
 }
 
-module "db" {
+module "db-dev" {
   source = "terraform-aws-modules/rds/aws"
   
   identifier = "courseway"
   
   engine            = "postgres"
-  engine_version    = "15"
+  engine_version    = "16"
   instance_class    = "db.t3.medium"
   allocated_storage = 20
   
-  db_name  = "proddb"
+  db_name  = "sw-site-db-dev"
   username = var.DB_USER
   password = var.DB_PASSWORD
   port     = "5432"
@@ -56,26 +56,99 @@ module "db" {
   subnet_ids             = module.rds-vpc.private_subnets
   
   # DB parameter group
-  family = "postgres15"
+  family = "postgres16"
   
   # DB option group
-  major_engine_version = "15"
+  major_engine_version = "16"
   
   # Database Deletion Protection
   deletion_protection = true
 }
 
-output "db_endpoint" {
-  value = module.db.db_instance_endpoint
+module "db-prod" {
+  source = "terraform-aws-modules/rds/aws"
+  
+  identifier = "courseway"
+  
+  engine            = "postgres"
+  engine_version    = "16"
+  instance_class    = "db.t3.medium"
+  allocated_storage = 20
+  
+  db_name  = "sw-site-db-prod"
+  username = var.DB_USER
+  password = var.DB_PASSWORD
+  port     = "5432"
+
+  manage_master_user_password = false
+  iam_database_authentication_enabled = true
+
+  maintenance_window = "Mon:00:00-Mon:03:00"
+  backup_window      = "03:00-06:00"
+
+  monitoring_interval    = "30"
+  monitoring_role_name   = "courseway-postgres"
+  create_monitoring_role = true
+  
+  tags = {
+    Owner       = "user"
+    Environment = "dev"
+  }
+  
+  # DB subnet group
+  create_db_subnet_group = true
+  subnet_ids             = module.rds-vpc.private_subnets
+  
+  # DB parameter group
+  family = "postgres16"
+  
+  # DB option group
+  major_engine_version = "16"
+  
+  # Database Deletion Protection
+  deletion_protection = true
 }
 
-resource "null_resource" "init_db" {
-  depends_on = [module.db]
+module "db-keycloak" {
+  source = "terraform-aws-modules/rds/aws"
+  
+  identifier = "courseway"
+  
+  engine            = "postgres"
+  engine_version    = "16"
+  instance_class    = "db.t3.medium"
+  allocated_storage = 20
+  
+  db_name  = "db-keycloak"
+  username = var.DB_USER
+  password = var.DB_PASSWORD
+  port     = "5432"
 
-  provisioner "local-exec" {
-    command = <<EOT
-      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.db_instance_endpoint} -U ${var.DB_USER} -d proddb -c "CREATE DATABASE sw-site-db-dev;"
-      PGPASSWORD=${var.DB_PASSWORD} psql -h ${module.db.db_instance_endpoint} -U ${var.DB_USER} -d proddb -c "CREATE DATABASE db-keycloak;"
-    EOT
+  manage_master_user_password = false
+  iam_database_authentication_enabled = true
+
+  maintenance_window = "Mon:00:00-Mon:03:00"
+  backup_window      = "03:00-06:00"
+
+  monitoring_interval    = "30"
+  monitoring_role_name   = "courseway-postgres"
+  create_monitoring_role = true
+  
+  tags = {
+    Owner       = "user"
+    Environment = "dev"
   }
+  
+  # DB subnet group
+  create_db_subnet_group = true
+  subnet_ids             = module.rds-vpc.private_subnets
+  
+  # DB parameter group
+  family = "postgres16"
+  
+  # DB option group
+  major_engine_version = "16"
+  
+  # Database Deletion Protection
+  deletion_protection = true
 }

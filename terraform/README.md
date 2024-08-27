@@ -1,6 +1,23 @@
 # terraform
 
-## Структура проекта
+Развертывание инфраструктуры aws 
+Перед развертывание:
+1. Нужно создать s3 для хранения terraform state.
+2. Добавить secrets DB_USER, DB_PORT и DB_PASSWORD которые будут использоваться для создания RDS
+3. Добавить перменные окружения AWS_REGION и CLUSTER_NAME для EKS
+
+Для запуска pipeline используется тэг terraform-pipeline*
+
+# Ansible
+
+Ansible разворачивает несколько приложение (argoCD, defectdojo, ingress-nginx, keycloak)
+Сразу после создания инфраструктуры нужно запустить установку ingress-nginx pipeline запускается при создании тэга
+ingress-pipeline*
+
+После создания ingress нужно добавить новые secrets:
+1. 
+
+# Структура проекта
 В репозитории создана папка modules в которой находятся ресурсы для развертывания:
 Хранилище S3
 Репозиторий контейнеров docker
