@@ -43,7 +43,7 @@ module "db-dev" {
   backup_window      = "03:00-06:00"
 
   monitoring_interval    = "30"
-  monitoring_role_name   = "courseway-postgres"
+  monitoring_role_name   = "courseway-dev"
   create_monitoring_role = true
   
   tags = {
@@ -87,7 +87,7 @@ module "db-prod" {
   backup_window      = "03:00-06:00"
 
   monitoring_interval    = "30"
-  monitoring_role_name   = "courseway-postgres"
+  monitoring_role_name   = "courseway-prod"
   create_monitoring_role = true
   
   tags = {
@@ -131,7 +131,7 @@ module "db-keycloak" {
   backup_window      = "03:00-06:00"
 
   monitoring_interval    = "30"
-  monitoring_role_name   = "courseway-postgres"
+  monitoring_role_name   = "courseway-keycloak"
   create_monitoring_role = true
   
   tags = {
